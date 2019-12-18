@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace console_battleship
+namespace battleship
 {
     class Player
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace console_battleship
+namespace battleship
 {
     class Game
     {
@@ -86,7 +86,7 @@ namespace console_battleship
                     {
                         for (int y = 0; y < 10; y++)
                         {
-                            DrawCase(ConsoleColor.Blue, "~~");
+                            DrawCase(ConsoleColor.Blue, "  ");
                         }
                         Console.WriteLine();
                     }
@@ -143,11 +143,11 @@ namespace console_battleship
                     }
                     #endregion
                     Console.ResetColor();
-                    Console.SetCursorPosition(0,11);
+                    Console.SetCursorPosition(0, 11);
                     Console.WriteLine("Utiliser ZQSD pour vous deplacer et R pour tourner");
-                    Console.WriteLine("{0}:{1} La case actuel contient {0}", pos_x + 1, pos_y + 1, players.First<Player>().map.grille[pos_x, pos_y]);
+                    Console.WriteLine("{0}:{1} La case actuel contient {2}", pos_x + 1, pos_y + 1, players.First<Player>().map.grille[pos_x, pos_y]);
 
-                   
+
 
 
                     if (canPlace == false)
@@ -217,7 +217,7 @@ namespace console_battleship
 
 
         }
-        
+
         public void DrawCase(ConsoleColor color, string content = "  ")
         {
             Console.BackgroundColor = color;

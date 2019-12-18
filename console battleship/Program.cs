@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace console_battleship
+namespace battleship
 {
     class Program
     {
