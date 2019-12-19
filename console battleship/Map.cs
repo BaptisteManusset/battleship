@@ -33,7 +33,7 @@ namespace battleship
 
         public void display()
         {
-            Console.Write("    ");
+            /*Console.Write("    ");
 
             for (int i = 1; i < 11; i++)
             {
@@ -50,7 +50,10 @@ namespace battleship
                     Console.Write(grille[x, y] + " ");
                 }
                 Console.WriteLine();
-            }
+            }*/
+
+
+
         }
 
 

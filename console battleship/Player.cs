@@ -5,8 +5,8 @@ namespace battleship
     class Player
     {
 
-        public Map map = new Map();
-        string name;
+        public int[,] grille = new int[10, 10];
+        public string name;
 
 
         public Player(string name)
@@ -18,7 +18,7 @@ namespace battleship
 
         public void Turn()
         {
-            map.display();
+            //map.display();
 
         }
         public override string ToString()
@@ -37,7 +37,7 @@ namespace battleship
 
 
 
-            if(map.grille[x, y] == 0)
+            if (grille[x, y] == 0)
             {
                 return false;
             }
