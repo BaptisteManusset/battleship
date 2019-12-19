@@ -6,8 +6,10 @@ namespace battleship
     {
 
         public int[,] grille = new int[10, 10];
+        public int[,] radar = new int[10, 10];
         public string name;
-
+        public int vie;
+        public bool win;
 
         public Player(string name)
         {
@@ -34,9 +36,6 @@ namespace battleship
 
         public bool CaseIsEmpty(int x, int y)
         {
-
-
-
             if (grille[x, y] == 0)
             {
                 return false;

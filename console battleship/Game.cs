@@ -8,12 +8,9 @@ namespace battleship
     class Game
     {
         bool actualPlayer = false;
-        int offset_x = 3;
-        int offset_y = 3;
-
-
-        Player p1 = new Player("joueur 1");
-        Player p2 = new Player("joueur 2");
+        int offset_top = 3;
+        int offset_left = 3;
+        int vaisseauCaseCount = 0;
 
         List<Player> players = new List<Player>();
 
@@ -38,8 +35,8 @@ namespace battleship
 
         public Game()
         {
-            players.Add(new Player("joueur 1"));
-            players.Add(new Player("joueur 2"));
+            players.Add(new Player("Batman"));
+            players.Add(new Player("Joker"));
 
             Placing();
             players.Reverse();
@@ -49,25 +46,27 @@ namespace battleship
             while (true)
             {
                 Console.Clear();
-                players.First<Player>().ToString();
                 Turn();
-                Console.WriteLine();
-                Console.WriteLine("grille du joueur");
-                players.First<Player>().Turn();
-                Console.WriteLine();
-                Console.WriteLine("grille adverse");
-                players.Last<Player>().Turn();
+                if (players.First<Player>().win)
+                {
+                    break;
+                }
 
-
-                Console.ReadLine();
                 players.Reverse();
 
             }
+            Console.Clear();
+            Console.WriteLine("Félicitation {0}, vous avez gagnez !!!", players.First<Player>().name);
+
+            Console.ReadKey();
 
         }
 
         private void Placing()
         {
+            ConsoleKeyInfo cki;
+            #region création des différents vaisseaux
+
             int actualVaisseau = 0;
             int vaisseauRestant = 100;
             int vaisseauNumber = 1;
@@ -94,8 +93,15 @@ namespace battleship
             vaisseau.quantite = 1;
             flotte.Add(vaisseau);
 
+            for (int i = 0; i < flotte.Count; i++)
+            {
+                vaisseauCaseCount += flotte[i].quantite;
+            }
 
-            ConsoleKeyInfo cki;
+            #endregion
+
+
+
             do
             {
                 int pos_x = 0;
@@ -217,7 +223,7 @@ namespace battleship
 
 
 
-                    //#region message d'information pour le placement
+                    #region message d'information pour le placement
                     if (canPlace == false)
                     {
                         Console.BackgroundColor = ConsoleColor.DarkRed;
@@ -231,9 +237,9 @@ namespace battleship
                         Console.ResetColor();
                     }
 
-                    //#endregion
+                    #endregion
 
-                    //#region gestion des inputs de l'utilisateur
+                    #region gestion des inputs de l'utilisateur
                     cki = Console.ReadKey();
                     switch (cki.Key.ToString().ToLower())
                     {
@@ -275,8 +281,8 @@ namespace battleship
                     pos_x = Math.Min(Math.Max(pos_x, 0), 9);
                     pos_y = Math.Min(Math.Max(pos_y, 0), 9);
 
-                    //#endregion
-                } while (!(cki.Key == ConsoleKey.Enter && canPlace == true));
+                    #endregion
+                } while (!((cki.Key == ConsoleKey.Enter || cki.Key == ConsoleKey.Spacebar) && canPlace == true));
 
 
                 if (flotte[actualVaisseau].quantite > 0)
@@ -308,7 +314,8 @@ namespace battleship
 
                 Console.WriteLine("Sauvegarde...");
                 Thread.Sleep(200);
-            } while (vaisseauRestant != 0);
+            } while (vaisseauRestant != 0);      // loop tant qu'il reste un vaisseau a placer
+                                                 //} while (false); /////////////-------------------------------------------------------------------------------------------------------Debugage
 
             Console.SetCursorPosition(0, 0);
         }
@@ -316,90 +323,205 @@ namespace battleship
 
         private void Turn()
         {
-
-            //for (int x = 0; x < 10; x++)
-            //{
-            //    for (int y = 0; y < 10; y++)
-            //    {
-            //        Console.Write(players.First<Player>().grille[x, y]);
-            //    }
-            //    Console.WriteLine();
-            //}
+            ConsoleKeyInfo cki;
+            int pos_top = 0;
+            int pos_left = 0;
 
 
+            do
+            {
 
-            #region affichage de la grille de placement
-            #region affichage du fond de la grille
+                #region affichage de la grille de placement
+                Console.SetCursorPosition(offset_left, offset_top - 1);
+                Console.WriteLine("Votre carte");
+                #region affichage du fond de la grille
 
-            Console.BackgroundColor = ConsoleColor.DarkBlue;
-            Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                Console.ForegroundColor = ConsoleColor.Cyan;
 
 
+                for (int x = 0; x < 10; x++)
+                {
+                    for (int y = 0; y < 10; y++)
+                    {
+                        Console.SetCursorPosition(y * 2 + offset_left, x + offset_top);
+                        DrawCase(ConsoleColor.Blue, "  ");
+                    }
+                    Console.WriteLine();
+                }
+                Console.ResetColor();
+                #endregion
+                #region affichage des bateaux sur la grille
+                Console.ForegroundColor = ConsoleColor.Black;
+                for (int x = 0; x < 10; x++)
+                {
+                    for (int y = 0; y < 10; y++)
+                    {
+                        Console.SetCursorPosition(y * 2 + offset_left, x + offset_top);
+                        if (players.First<Player>().grille[x, y] > 0)
+                        {
+                            DrawCase(x + offset_top, y * 2 + offset_left, ConsoleColor.Gray, players.First<Player>().grille[x, y].ToString() + players.First<Player>().grille[x, y]);
+                        }
+                        else if (players.First<Player>().grille[x, y] == -1)
+                        {
+                            DrawCase(x + offset_top, y * 2 + offset_left, ConsoleColor.Red, "▒▒");
+
+                        }
+
+
+                    }
+                }
+
+                Console.SetCursorPosition(0, 20);
+                Console.ResetColor();
+                #endregion
+                #endregion
+
+                #region affichage de la grille ennemy
+                Console.SetCursorPosition(offset_left + 30, offset_top - 1);
+                Console.WriteLine("Carte ennemy");
+                #region affichage du fond de la grille
+
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                Console.ForegroundColor = ConsoleColor.Cyan;
+
+
+                for (int x = 0; x < 10; x++)
+                {
+                    for (int y = 0; y < 10; y++)
+                    {
+                        Console.SetCursorPosition(y * 2 + offset_left + 30, x + offset_top);
+                        DrawCase(ConsoleColor.Blue, "  ");
+                    }
+                    Console.WriteLine();
+                }
+                Console.ResetColor();
+                #endregion
+                #region affichage du radar sur la grille
+                Console.ForegroundColor = ConsoleColor.Black;
+                for (int x = 0; x < 10; x++)
+                {
+                    for (int y = 0; y < 10; y++)
+                    {
+                        Console.SetCursorPosition(y * 2 + offset_left + 30, x + offset_top);
+                        if (players.First<Player>().radar[x, y] == 1)
+                        {
+                            DrawCase(x + offset_top, y * 2 + offset_left + 30, ConsoleColor.Gray);
+                        }
+                        else if (players.First<Player>().radar[x, y] == -1)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            DrawCase(x + offset_top, y * 2 + offset_left + 30, ConsoleColor.DarkBlue, "XX");
+
+                        }
+
+
+                    }
+                }
+                Console.ResetColor();
+                #endregion
+                #region affichage du curseur sur la grille
+                for (int x = 0; x < 10; x++)
+                {
+                    for (int y = 0; y < 10; y++)
+                    {
+
+                        if (y == pos_left && pos_top == x)
+                        {
+                            Console.SetCursorPosition(offset_left + pos_left * 2 + 30, offset_top + pos_top);
+                            DrawCase(ConsoleColor.Red, "  ");
+                        }
+                    }
+                }
+
+
+
+
+                Console.SetCursorPosition(0, 20);
+                #endregion
+                Console.ResetColor();
+                #endregion
+
+
+
+                #region gestion des inputs de l'utilisateur
+                cki = Console.ReadKey();
+                switch (cki.Key.ToString().ToLower())
+                {
+                    case "uparrow":
+                    case "z":
+                        pos_top--;
+                        break;
+                    case "downarrow":
+                    case "s":
+                        pos_top++;
+                        break;
+                    case "leftarrow":
+                    case "q":
+                        pos_left--;
+                        break;
+                    case "rightarrow":
+                    case "d":
+                        pos_left++;
+                        break;
+                }
+                pos_top = Math.Min(Math.Max(pos_top, 0), 9);
+                pos_left = Math.Min(Math.Max(pos_left, 0), 9);
+
+                #endregion
+
+            } while (!(cki.Key == ConsoleKey.Enter || cki.Key == ConsoleKey.Spacebar));
+
+            #region verification si touche
+            if (players.Last<Player>().grille[pos_top, pos_left] > 0)
+            {
+                players.First<Player>().radar[pos_top, pos_left] = 1;
+                players.Last<Player>().grille[pos_top, pos_left] = -1;
+                Console.SetCursorPosition(offset_left + pos_left * 2 + 30, offset_top + pos_top);
+                DrawCase(ConsoleColor.Red, "<>");
+                Console.SetCursorPosition(0, 20);
+                Console.WriteLine("Toucher !!!");
+                Console.ResetColor();
+            }
+            else if (players.Last<Player>().grille[pos_top, pos_left] == 0)
+            {
+                Console.WriteLine("Plouff !!!");
+                players.First<Player>().radar[pos_top, pos_left] = -1;
+            }
+            #endregion
+            #region vie
+            int vie = 0;
             for (int x = 0; x < 10; x++)
             {
                 for (int y = 0; y < 10; y++)
                 {
-                    Console.SetCursorPosition(y * 2 + offset_y, x + offset_x);
-                    DrawCase(ConsoleColor.Blue, "  ");
-                }
-                Console.WriteLine();
-            }
-            Console.ResetColor();
-            #endregion
-            #region affichage des bateaux sur la grille
-            Console.ForegroundColor = ConsoleColor.Black;
-            for (int x = 0; x < 10; x++)
-            {
-                for (int y = 0; y < 10; y++)
-                {
-                    Console.SetCursorPosition(y * 2 + offset_y, x + offset_x);
-                    if (players.First<Player>().CaseIsEmpty(x, y))
-                        DrawCase(ConsoleColor.Gray, 
-                            
-                            players.First<Player>().grille[x, y].ToString() + players.First<Player>().grille[x, y].ToString());
+                    if (players.Last<Player>().grille[x, y] > 0)
+                    {
+                        vie++;
 
-
+                    }
                 }
             }
-            Console.ResetColor();
-            #endregion
-            #region affichage du curseur sur la grille
-            for (int x = 0; x < 10; x++)
+            players.Last<Player>().vie = vie;
+            if (players.Last<Player>().vie == 0)
             {
-                //for (int y = 0; y < 10; y++)
-                //{
-
-                //    if (y == pos_y && pos_x == x)
-                //    {
-                //        Console.SetCursorPosition((y + index_y) * 2, x + index_x);
-                //        if ((x + index_x >= 0 && x + index_x <= 9) && (y + index_y >= 0 && y + index_y <= 9))
-                //        {
-                //            if (players.First<Player>().CaseIsEmpty(x + index_x, y + index_y))
-                //            {
-                //                DrawCase(ConsoleColor.Red, "  ");
-                //                canPlace = false;
-                //            }
-                //            else
-                //            {
-                //                DrawCase(ConsoleColor.Green, "  ");
-                //            }
-                //        }
-                //        else
-                //        {
-                //            canPlace = false;
-                //        }
-                //    }
-                //}
-                Console.WriteLine();
+                players.First<Player>().win = true;
             }
+
+            Console.WriteLine("La vie de votre adversaire est de {0} sur {1}", vie, vaisseauCaseCount);
             #endregion
-            Console.ResetColor();
-            #endregion
+            Console.WriteLine("Appuyer sur une touche pour passer au joueur suivant");
+            Console.ReadKey();
         }
 
 
 
         public void DrawCase(ConsoleColor color, string content = "  ")
+        {
+            Console.BackgroundColor = color;
+            Console.Write(content);
+        }
+        public void DrawCase(int x, int y, ConsoleColor color, string content = "  ")
         {
             Console.BackgroundColor = color;
             Console.Write(content);
